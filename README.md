@@ -7,7 +7,7 @@
 [![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/index.html)
 [![JWT Auth](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)](https://jwt.io/)
 
-**[📖 Swagger Docs](http://127.0.0.1:8000/docs)** | **[🔴 ReDoc](http://127.0.0.1:8000/redoc)**
+**[🚀 Postman Docs](https://documenter.getpostman.com/view/54135951/2sBXqDt3Wc)**
 
 API modern, cepat, dan aman untuk mengelola sistem rekrutmen relawan acara kampus. Dilengkapi dengan Frontend Single Page Application (SPA), autentikasi JWT, dan pemisahan akses (Role-Based Access Control) antara Admin (Panitia) dan Relawan.
 
