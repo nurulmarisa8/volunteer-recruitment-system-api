@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rekrutmen Relawan Kampus | Sistem Pendaftaran</title>
+  <meta name="description" content="Sistem Rekrutmen Relawan Kampus - Daftar sebagai relawan untuk kepanitiaan dan program kampus." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50:'#eff6ff', 100:'#dbeafe', 200:'#bfdbfe', 300:'#93c5fd', 400:'#60a5fa', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8', 800:'#1e40af', 900:'#1e3a8a' },
+            accent:  { 400:'#a78bfa', 500:'#8b5cf6', 600:'#7c3aed' }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; }
+
+    /* Gradient animated background */
+    .bg-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #1e3a8a 100%);
+      min-height: 100vh;
+    }
+
+    /* Glass card */
+    .glass {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      pointer-events: none;
+      animation: float 8s ease-in-out infinite;
+    }
+    .orb-1 { width:400px;height:400px;background:#6366f1;top:-100px;left:-100px; }
+    .orb-2 { width:350px;height:350px;background:#3b82f6;bottom:-80px;right:-80px;animation-delay:3s; }
+    .orb-3 { width:250px;height:250px;background:#8b5cf6;top:50%;left:50%;animation-delay:6s; }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0px) scale(1); }
+      50%      { transform: translateY(-30px) scale(1.05); }
+    }
+
+    /* Card hover lift */
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(59,130,246,0.3);
+    }
+
+    /* Smooth transitions */
+    .fade-in {
+      animation: fadeIn 0.4s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Status badge pulse for Pending */
+    @keyframes pulse-soft {
+      0%,100% { opacity:1; }
+      50%      { opacity:0.6; }
+    }
+    .pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+    /* Modal backdrop */
+    .modal-backdrop {
+      animation: fadeIn 0.2s ease forwards;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 3px; }
+  </style>
+</head>
+<body class="bg-hero text-white">
+
+  <!-- Floating Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="glass sticky top-0 z-50 border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center font-bold text-sm shadow-lg">RR</div>
+          <span class="font-bold text-lg tracking-tight">Relawan<span class="text-blue-400">Kampus</span></span>
+        </div>
+        <div id="nav-auth" class="flex items-center gap-3">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- AUTH SECTION (shown when not logged in) -->
+    <section id="auth-section" class="hidden">
+      <div class="min-h-[80vh] flex items-center justify-center">
+        <div class="w-full max-w-md fade-in">
+          <!-- Hero Text -->
+          <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 px-4 py-1.5 rounded-full text-blue-300 text-sm font-medium mb-4">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+              Sistem Rekrutmen Relawan Kampus
+            </div>
+            <h1 class="text-4xl font-extrabold mb-3 bg-gradient-to-r from-white via-blue-200 to-violet-300 bg-clip-text text-transparent">
+              Bergabung & Berkarya
+            </h1>
+            <p class="text-slate-400 text-sm">Daftar atau masuk untuk mulai mendaftar sebagai relawan kepanitiaan kampus.</p>
+          </div>
+
+          <!-- Auth Card -->
+          <div class="glass rounded-2xl p-8 shadow-2xl">
+            <!-- Tabs -->
+            <div class="flex gap-1 bg-white/5 rounded-xl p-1 mb-6">
+              <button id="tab-login" onclick="switchTab('login')"
+                class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-blue-600 text-white shadow">
+                Masuk
+              </button>
+              <button id="tab-register" onclick="switchTab('register')"
+                class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-400 hover:text-white">
+                Daftar
+              </button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Alamat Email</label>
+                <input id="login-email" type="email" required placeholder="nama@email.com"
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
+                <input id="login-password" type="password" required placeholder="••••••••"
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
+              </div>
+              <div id="login-error" class="hidden text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2"></div>
+              <button type="submit" id="login-btn"
+                class="w-full py-3 bg-gradient-to-r from-blue-600 to-violet-600 rounded-xl font-semibold text-sm hover:from-blue-500 hover:to-violet-500 transition-all shadow-lg hover:shadow-blue-500/25 active:scale-95">
+                Masuk ke Akun
+              </button>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Alamat Email</label>
+                <input id="reg-email" type="email" required placeholder="nama@email.com"
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Password</label>
+                <input id="reg-password" type="password" required placeholder="Min. 6 karakter"
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-400 mb-1.5">Daftar Sebagai</label>
+                <select id="reg-role"
+                  class="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                  <option value="volunteer">Relawan (Volunteer)</option>
+                  <option value="admin">Panitia (Admin)</option>
+                </select>
+              </div>
+              <div id="reg-error" class="hidden text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2"></div>
+              <div id="reg-success" class="hidden text-green-400 text-xs bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2"></div>
+              <button type="submit" id="reg-btn"
+                class="w-full py-3 bg-gradient-to-r from-violet-600 to-blue-600 rounded-xl font-semibold text-sm hover:from-violet-500 hover:to-blue-500 transition-all shadow-lg active:scale-95">
+                Buat Akun Baru
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD SECTION (shown when logged in) -->
+    <section id="dashboard-section" class="hidden fade-in">
+
+      <!-- Welcome Banner -->
+      <div class="glass rounded-2xl p-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-2xl font-bold mb-1">Selamat Datang! 👋</h2>
+          <p class="text-slate-400 text-sm">Email: <span id="user-email" class="text-blue-300 font-medium"></span> &nbsp;|&nbsp; Role: <span id="user-role" class="uppercase text-xs font-bold bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full"></span></p>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+          <!-- Admin only: Create Event button -->
+          <button id="btn-create-event"
+            onclick="openCreateEventModal()"
+            class="hidden px-4 py-2 bg-green-600/20 border border-green-500/30 text-green-300 rounded-xl text-sm font-medium hover:bg-green-600/30 transition flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Buat Event
+          </button>
+          <!-- My registrations -->
+          <button onclick="loadMyRegistrations()"
+            class="px-4 py-2 bg-violet-600/20 border border-violet-500/30 text-violet-300 rounded-xl text-sm font-medium hover:bg-violet-600/30 transition flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Pendaftaranku
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+        <div class="glass rounded-xl p-4 text-center">
+          <div id="stat-events" class="text-3xl font-extrabold text-blue-400">—</div>
+          <div class="text-xs text-slate-400 mt-1">Total Event</div>
+        </div>
+        <div class="glass rounded-xl p-4 text-center">
+          <div id="stat-open" class="text-3xl font-extrabold text-green-400">—</div>
+          <div class="text-xs text-slate-400 mt-1">Event Buka</div>
+        </div>
+        <div class="glass rounded-xl p-4 text-center col-span-2 sm:col-span-1">
+          <div id="stat-my" class="text-3xl font-extrabold text-violet-400">—</div>
+          <div class="text-xs text-slate-400 mt-1">Pendaftaranku</div>
+        </div>
+      </div>
+
+      <!-- Events Section -->
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-xl font-bold">Event Rekruitmen</h3>
+        <button onclick="loadEvents()" class="text-blue-400 hover:text-blue-300 transition text-sm flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Refresh
+        </button>
+      </div>
+
+      <!-- Events Grid -->
+      <div id="events-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+        <div class="col-span-full text-center py-12 text-slate-500">
+          <svg class="w-10 h-10 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <p>Memuat event...</p>
+        </div>
+      </div>
+
+      <!-- My Registrations Panel -->
+      <div id="my-reg-panel" class="hidden">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-xl font-bold">Riwayat Pendaftaranku</h3>
+          <button onclick="closeMyRegistrations()" class="text-slate-400 hover:text-white transition text-sm">✕ Tutup</button>
+        </div>
+        <div id="my-reg-list" class="space-y-3 mb-10"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ==================== MODAL: REGISTER VOLUNTEER ==================== -->
+  <div id="modal-volunteer" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeVolunteerModal()"></div>
+    <div class="glass rounded-2xl p-8 w-full max-w-lg relative z-10 shadow-2xl fade-in">
+      <button onclick="closeVolunteerModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 transition">✕</button>
+      <h3 class="text-xl font-bold mb-1">Daftar Sebagai Relawan</h3>
+      <p id="modal-event-title" class="text-blue-300 text-sm mb-6"></p>
+
+      <form id="volunteer-form" onsubmit="handleVolunteerSubmit(event)" class="space-y-4">
+        <input type="hidden" id="volunteer-event-id" />
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Pilih Divisi</label>
+          <select id="volunteer-division"
+            class="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+            <option value="Acara">🎤 Divisi Acara</option>
+            <option value="Humas">📣 Divisi Humas & Publikasi</option>
+            <option value="Perlengkapan">🔧 Divisi Perlengkapan</option>
+            <option value="Konsumsi">🍱 Divisi Konsumsi</option>
+            <option value="Keamanan">🛡️ Divisi Keamanan</option>
+            <option value="Dokumentasi">📷 Divisi Dokumentasi</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Surat Motivasi <span class="text-slate-600">(Opsional)</span></label>
+          <textarea id="volunteer-motivation" rows="4" placeholder="Ceritakan motivasimu bergabung..."
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-none"></textarea>
+        </div>
+        <div id="volunteer-error" class="hidden text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2"></div>
+        <div id="volunteer-success" class="hidden text-green-400 text-xs bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2"></div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeVolunteerModal()"
+            class="flex-1 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium hover:bg-white/10 transition">
+            Batal
+          </button>
+          <button type="submit" id="volunteer-submit-btn"
+            class="flex-1 py-3 bg-gradient-to-r from-blue-600 to-violet-600 rounded-xl font-semibold text-sm hover:from-blue-500 hover:to-violet-500 transition-all shadow-lg active:scale-95">
+            Kirim Pendaftaran
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CREATE EVENT (Admin) ==================== -->
+  <div id="modal-create-event" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCreateEventModal()"></div>
+    <div class="glass rounded-2xl p-8 w-full max-w-lg relative z-10 shadow-2xl fade-in">
+      <button onclick="closeCreateEventModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 transition">✕</button>
+      <h3 class="text-xl font-bold mb-1">Buat Event Baru</h3>
+      <p class="text-slate-400 text-sm mb-6">Isi detail informasi kepanitiaan atau program rekruitmen.</p>
+
+      <form id="create-event-form" onsubmit="handleCreateEvent(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Judul Event</label>
+          <input id="event-title" type="text" required placeholder="Contoh: Kepanitiaan PKKMB Unhas 2026"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Deskripsi</label>
+          <textarea id="event-description" rows="3" placeholder="Jelaskan detail event, syarat, dan informasi penting..."
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Status</label>
+          <select id="event-status"
+            class="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+            <option value="Open">🟢 Open - Menerima Pendaftar</option>
+            <option value="Closed">🔴 Closed - Tidak Menerima</option>
+          </select>
+        </div>
+        <div id="create-event-error" class="hidden text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2"></div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeCreateEventModal()"
+            class="flex-1 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-medium hover:bg-white/10 transition">
+            Batal
+          </button>
+          <button type="submit"
+            class="flex-1 py-3 bg-gradient-to-r from-green-600 to-blue-600 rounded-xl font-semibold text-sm hover:from-green-500 hover:to-blue-500 transition-all shadow-lg active:scale-95">
+            Buat Event
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: MANAGE VOLUNTEERS (Admin) ==================== -->
+  <div id="modal-manage-volunteers" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeAdminVolunteersModal()"></div>
+    <div class="glass rounded-2xl p-6 w-full max-w-2xl relative z-10 shadow-2xl fade-in max-h-[90vh] flex flex-col">
+      <button onclick="closeAdminVolunteersModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 transition">✕</button>
+      <h3 class="text-xl font-bold mb-1">Kelola Pendaftar</h3>
+      <p id="admin-modal-event-title" class="text-blue-300 text-sm mb-6"></p>
+
+      <div id="admin-volunteers-list" class="overflow-y-auto space-y-3 pr-2 flex-1">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST ==================== -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
+    <div id="toast-inner" class="glass px-5 py-3 rounded-xl text-sm font-medium shadow-2xl flex items-center gap-3 fade-in">
+      <span id="toast-icon"></span>
+      <span id="toast-msg"></span>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    // =============================================
+    // CONFIG
+    // =============================================
+    const API_BASE = 'http://127.0.0.1:8000';
+
+    // =============================================
+    // STATE
+    // =============================================
+    let currentUser = null;
+
+    // =============================================
+    // UTILITY FUNCTIONS
+    // =============================================
+    function getToken() {
+      return localStorage.getItem('token');
+    }
+
+    function setToken(token) {
+      localStorage.setItem('token', token);
+    }
+
+    function clearToken() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userRole');
+    }
+
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      };
+    }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const inner = document.getElementById('toast-inner');
+      const icon  = document.getElementById('toast-icon');
+      const msgEl = document.getElementById('toast-msg');
+
+      icon.textContent  = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+      msgEl.textContent = msg;
+      inner.className   = `glass px-5 py-3 rounded-xl text-sm font-medium shadow-2xl flex items-center gap-3 fade-in ${type === 'error' ? 'border-red-500/30' : 'border-green-500/30'}`;
+
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+
+      setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3500);
+    }
+
+    function showError(elId, msg) {
+      const el = document.getElementById(elId);
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 5000);
+    }
+
+    function showSuccess(elId, msg) {
+      const el = document.getElementById(elId);
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function setLoading(btnId, loading, text = '') {
+      const btn = document.getElementById(btnId);
+      btn.disabled = loading;
+      if (loading) {
+        btn.dataset.orig = btn.textContent;
+        btn.textContent  = '⏳ Memproses...';
+      } else {
+        btn.textContent = text || btn.dataset.orig || btn.textContent;
+      }
+    }
+
+    // =============================================
+    // APP STATE MANAGEMENT
+    // =============================================
+    function initApp() {
+      const token = getToken();
+      if (token) {
+        // User sudah login
+        const email = localStorage.getItem('userEmail') || '—';
+        const role  = localStorage.getItem('userRole') || '—';
+        showDashboard(email, role);
+      } else {
+        showAuthSection();
+      }
+    }
+
+    function showAuthSection() {
+      document.getElementById('auth-section').classList.remove('hidden');
+      document.getElementById('dashboard-section').classList.add('hidden');
+      renderNavGuest();
+    }
+
+    function showDashboard(email, role) {
+      document.getElementById('auth-section').classList.add('hidden');
+      document.getElementById('dashboard-section').classList.remove('hidden');
+      document.getElementById('user-email').textContent = email;
+      document.getElementById('user-role').textContent  = role;
+
+      // Show admin button
+      if (role === 'admin') {
+        document.getElementById('btn-create-event').classList.remove('hidden');
+      }
+
+      renderNavLoggedIn(email, role);
+      loadEvents();
+      loadMyRegistrations();
+    }
+
+    function renderNavGuest() {
+      document.getElementById('nav-auth').innerHTML = `
+        <span class="text-slate-400 text-sm">Belum login</span>
+      `;
+    }
+
+    function renderNavLoggedIn(email, role) {
+      document.getElementById('nav-auth').innerHTML = `
+        <span class="hidden sm:inline text-xs text-slate-400">${email}</span>
+        <span class="text-xs font-bold uppercase px-2 py-1 rounded-full ${role === 'admin' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-blue-500/20 text-blue-300'}">${role}</span>
+        <button onclick="handleLogout()" class="px-3 py-1.5 text-xs text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/10 transition">Keluar</button>
+      `;
+    }
+
+    // =============================================
+    // AUTH TAB SWITCHING
+    // =============================================
+    function switchTab(tab) {
+      const loginForm = document.getElementById('login-form');
+      const regForm   = document.getElementById('register-form');
+      const tabLogin  = document.getElementById('tab-login');
+      const tabReg    = document.getElementById('tab-register');
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        regForm.classList.add('hidden');
+        tabLogin.className = 'flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-blue-600 text-white shadow';
+        tabReg.className   = 'flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-400 hover:text-white';
+      } else {
+        loginForm.classList.add('hidden');
+        regForm.classList.remove('hidden');
+        tabLogin.className = 'flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-400 hover:text-white';
+        tabReg.className   = 'flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-violet-600 text-white shadow';
+      }
+    }
+
+    // =============================================
+    // REGISTER
+    // =============================================
+    async function handleRegister(e) {
+      e.preventDefault();
+      document.getElementById('reg-error').classList.add('hidden');
+      document.getElementById('reg-success').classList.add('hidden');
+
+      const email    = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const role     = document.getElementById('reg-role').value;
+
+      if (password.length < 6) {
+        showError('reg-error', 'Password minimal 6 karakter.');
+        return;
+      }
+
+      setLoading('reg-btn', true);
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, role })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError('reg-error', data.detail || 'Gagal mendaftar. Coba lagi.');
+        } else {
+          showSuccess('reg-success', '✅ Akun berhasil dibuat! Silakan login.');
+          document.getElementById('register-form').reset();
+          setTimeout(() => switchTab('login'), 1500);
+        }
+      } catch (err) {
+        showError('reg-error', 'Tidak dapat menghubungi server. Pastikan backend berjalan.');
+      } finally {
+        setLoading('reg-btn', false, 'Buat Akun Baru');
+      }
+    }
+
+    // =============================================
+    // LOGIN
+    // =============================================
+    async function handleLogin(e) {
+      e.preventDefault();
+      document.getElementById('login-error').classList.add('hidden');
+
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      setLoading('login-btn', true);
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError('login-error', data.detail || 'Email atau password salah.');
+        } else {
+          // Simpan token dan info user
+          setToken(data.access_token);
+
+          // Decode JWT payload (base64) untuk ambil email & role
+          const payload = JSON.parse(atob(data.access_token.split('.')[1]));
+          localStorage.setItem('userEmail', payload.email || email);
+          localStorage.setItem('userRole', payload.role || 'volunteer');
+
+          showToast('Login berhasil! Selamat datang 🎉');
+          showDashboard(payload.email || email, payload.role || 'volunteer');
+        }
+      } catch (err) {
+        showError('login-error', 'Tidak dapat menghubungi server. Pastikan backend berjalan di port 8000.');
+      } finally {
+        setLoading('login-btn', false, 'Masuk ke Akun');
+      }
+    }
+
+    // =============================================
+    // LOGOUT
+    // =============================================
+    function handleLogout() {
+      clearToken();
+      showToast('Berhasil keluar. Sampai jumpa! 👋', 'info');
+      // Reset dashboard state
+      document.getElementById('btn-create-event').classList.add('hidden');
+      document.getElementById('my-reg-panel').classList.add('hidden');
+      showAuthSection();
+    }
+
+    // =============================================
+    // LOAD EVENTS
+    // =============================================
+    async function loadEvents() {
+      const grid = document.getElementById('events-grid');
+
+      try {
+        const res  = await fetch(`${API_BASE}/events/`);
+        const data = await res.json();
+
+        // Update stats
+        document.getElementById('stat-events').textContent = data.length;
+        document.getElementById('stat-open').textContent   = data.filter(e => e.status === 'Open').length;
+
+        if (data.length === 0) {
+          grid.innerHTML = `
+            <div class="col-span-full text-center py-16 text-slate-500">
+              <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <p class="text-sm">Belum ada event tersedia.</p>
+              ${localStorage.getItem('userRole') === 'admin' ? '<p class="text-xs mt-1 text-blue-400">Klik "Buat Event" untuk menambah event pertama.</p>' : ''}
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = data.map(ev => renderEventCard(ev)).join('');
+      } catch (err) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12 text-red-400 bg-red-500/5 border border-red-500/20 rounded-xl">
+            <svg class="w-8 h-8 mx-auto mb-2 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <p class="text-sm font-medium">Gagal memuat event.</p>
+            <p class="text-xs text-slate-500 mt-1">Pastikan server backend berjalan di port 8000.</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderEventCard(ev) {
+      const isOpen = ev.status === 'Open';
+      const role   = localStorage.getItem('userRole');
+
+      return `
+        <div class="glass rounded-2xl p-6 card-hover fade-in flex flex-col">
+          <!-- Status Badge -->
+          <div class="flex items-center justify-between mb-4">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full ${isOpen ? 'bg-green-500/15 text-green-400 border border-green-500/20' : 'bg-red-500/15 text-red-400 border border-red-500/20'}">
+              <span class="w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-green-400 pulse-soft' : 'bg-red-400'}"></span>
+              ${ev.status}
+            </span>
+            <span class="text-slate-600 text-xs">#${ev.id}</span>
+          </div>
+
+          <!-- Title -->
+          <h4 class="font-bold text-base mb-2 leading-snug text-white">${escapeHtml(ev.title)}</h4>
+
+          <!-- Description -->
+          <p class="text-slate-400 text-xs leading-relaxed flex-1 mb-5 line-clamp-3">
+            ${ev.description ? escapeHtml(ev.description) : '<span class="italic opacity-60">Tidak ada deskripsi.</span>'}
+          </p>
+
+          <!-- Actions -->
+          <div class="flex gap-2 flex-wrap">
+            ${isOpen ? `
+              <button onclick="openVolunteerModal(${ev.id}, '${escapeHtml(ev.title).replace(/'/g, "\\'")}')"
+                class="flex-1 py-2 bg-gradient-to-r from-blue-600 to-violet-600 rounded-xl text-xs font-semibold hover:from-blue-500 hover:to-violet-500 transition-all shadow active:scale-95 text-center">
+                ✋ Daftar Relawan
+              </button>
+            ` : `
+              <span class="flex-1 py-2 bg-white/5 rounded-xl text-xs font-medium text-slate-500 text-center cursor-not-allowed">
+                Pendaftaran Ditutup
+              </span>
+            `}
+            ${role === 'admin' ? `
+              <button onclick="openAdminVolunteersModal(${ev.id}, '${escapeHtml(ev.title).replace(/'/g, "\\'")}')"
+                class="flex-1 py-2 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-xl text-xs font-semibold hover:from-yellow-500 hover:to-orange-500 transition-all shadow active:scale-95 text-center">
+                👥 Kelola Pendaftar
+              </button>
+              <button onclick="deleteEvent(${ev.id}, '${escapeHtml(ev.title).replace(/'/g, "\\'")}')"
+                class="px-3 py-2 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs font-medium hover:bg-red-500/20 transition"
+                title="Hapus Event">
+                🗑️
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+      const el = document.createElement('div');
+      el.textContent = str || '';
+      return el.innerHTML;
+    }
+
+    // =============================================
+    // VOLUNTEER MODAL
+    // =============================================
+    function openVolunteerModal(eventId, eventTitle) {
+      document.getElementById('volunteer-event-id').value    = eventId;
+      document.getElementById('modal-event-title').textContent = eventTitle;
+      document.getElementById('volunteer-error').classList.add('hidden');
+      document.getElementById('volunteer-success').classList.add('hidden');
+      document.getElementById('volunteer-form').reset();
+      document.getElementById('volunteer-event-id').value = eventId;
+
+      const modal = document.getElementById('modal-volunteer');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeVolunteerModal() {
+      const modal = document.getElementById('modal-volunteer');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    async function handleVolunteerSubmit(e) {
+      e.preventDefault();
+      document.getElementById('volunteer-error').classList.add('hidden');
+      document.getElementById('volunteer-success').classList.add('hidden');
+
+      const eventId    = parseInt(document.getElementById('volunteer-event-id').value);
+      const division   = document.getElementById('volunteer-division').value;
+      const motivation = document.getElementById('volunteer-motivation').value.trim();
+
+      setLoading('volunteer-submit-btn', true);
+
+      try {
+        const res = await fetch(`${API_BASE}/volunteers/`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({
+            event_id: eventId,
+            division_choice: division,
+            motivation_letter: motivation || null
+          })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError('volunteer-error', data.detail || 'Gagal mendaftar. Coba lagi.');
+        } else {
+          showSuccess('volunteer-success', '✅ Pendaftaran berhasil! Status: Pending.');
+          showToast('Pendaftaran relawan berhasil dikirim! 🎉');
+          loadMyRegistrations();
+          setTimeout(() => closeVolunteerModal(), 2000);
+        }
+      } catch (err) {
+        showError('volunteer-error', 'Gagal menghubungi server.');
+      } finally {
+        setLoading('volunteer-submit-btn', false, 'Kirim Pendaftaran');
+      }
+    }
+
+    // =============================================
+    // CREATE EVENT MODAL (Admin)
+    // =============================================
+    function openCreateEventModal() {
+      document.getElementById('create-event-error').classList.add('hidden');
+      document.getElementById('create-event-form').reset();
+      const modal = document.getElementById('modal-create-event');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeCreateEventModal() {
+      const modal = document.getElementById('modal-create-event');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    async function handleCreateEvent(e) {
+      e.preventDefault();
+      document.getElementById('create-event-error').classList.add('hidden');
+
+      const title       = document.getElementById('event-title').value.trim();
+      const description = document.getElementById('event-description').value.trim();
+      const status      = document.getElementById('event-status').value;
+
+      try {
+        const res = await fetch(`${API_BASE}/events/`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ title, description: description || null, status })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError('create-event-error', data.detail || 'Gagal membuat event.');
+        } else {
+          showToast('Event berhasil dibuat! 🎉');
+          closeCreateEventModal();
+          loadEvents();
+        }
+      } catch (err) {
+        showError('create-event-error', 'Gagal menghubungi server.');
+      }
+    }
+
+    // =============================================
+    // DELETE EVENT (Admin)
+    // =============================================
+    async function deleteEvent(eventId, title) {
+      if (!confirm(`Hapus event "${title}"?\nSemua data relawan pada event ini juga akan dihapus.`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/events/${eventId}`, {
+          method: 'DELETE',
+          headers: authHeaders()
+        });
+
+        if (res.ok) {
+          showToast(`Event "${title}" berhasil dihapus.`);
+          loadEvents();
+        } else {
+          const data = await res.json();
+          showToast(data.detail || 'Gagal menghapus event.', 'error');
+        }
+      } catch (err) {
+        showToast('Gagal menghubungi server.', 'error');
+      }
+    }
+
+    // =============================================
+    // MANAGE VOLUNTEERS (Admin)
+    // =============================================
+    function openAdminVolunteersModal(eventId, eventTitle) {
+      document.getElementById('admin-modal-event-title').textContent = eventTitle;
+      const modal = document.getElementById('modal-manage-volunteers');
+      const list = document.getElementById('admin-volunteers-list');
+      list.innerHTML = '<div class="text-center py-6 text-slate-400"><p>Memuat data... ⏳</p></div>';
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      
+      loadEventVolunteers(eventId);
+    }
+
+    function closeAdminVolunteersModal() {
+      const modal = document.getElementById('modal-manage-volunteers');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    async function loadEventVolunteers(eventId) {
+      const list = document.getElementById('admin-volunteers-list');
+      try {
+        const res = await fetch(`${API_BASE}/volunteers/event/${eventId}`, {
+          headers: authHeaders()
+        });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error();
+
+        if (data.length === 0) {
+          list.innerHTML = `
+            <div class="text-center py-8 text-slate-500 bg-white/5 rounded-xl border border-white/10">
+              <p class="text-sm">Belum ada pendaftar untuk event ini.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const statusColor = {
+          'Pending':  'bg-yellow-500/15 text-yellow-300 border-yellow-500/20',
+          'Accepted': 'bg-green-500/15 text-green-300 border-green-500/20',
+          'Rejected': 'bg-red-500/15 text-red-300 border-red-500/20'
+        };
+
+        list.innerHTML = data.map(v => `
+          <div class="glass rounded-xl p-4 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs text-slate-400 mb-0.5">User ID: ${v.user_id}</p>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-blue-300">${escapeHtml(v.division_choice)}</span>
+                  <span class="text-xs font-bold px-2 py-0.5 rounded border ${statusColor[v.status] || 'bg-slate-500/15 text-slate-300 border-slate-500/20'}">
+                    ${v.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+            ${v.motivation_letter ? `<p class="text-xs text-slate-300 bg-black/20 p-3 rounded-lg">${escapeHtml(v.motivation_letter)}</p>` : '<p class="text-xs text-slate-500 italic">Tidak ada surat motivasi.</p>'}
+            
+            <div class="flex gap-2 mt-2">
+              <button onclick="updateVolunteerStatus(${v.id}, 'Accepted', ${eventId})" ${v.status === 'Accepted' ? 'disabled' : ''} class="flex-1 py-1.5 rounded-lg text-xs font-medium border ${v.status === 'Accepted' ? 'border-green-500/50 text-green-300 bg-green-500/20 cursor-not-allowed opacity-50' : 'border-green-500/30 text-green-400 hover:bg-green-500/20 transition'}">
+                Terima
+              </button>
+              <button onclick="updateVolunteerStatus(${v.id}, 'Rejected', ${eventId})" ${v.status === 'Rejected' ? 'disabled' : ''} class="flex-1 py-1.5 rounded-lg text-xs font-medium border ${v.status === 'Rejected' ? 'border-red-500/50 text-red-300 bg-red-500/20 cursor-not-allowed opacity-50' : 'border-red-500/30 text-red-400 hover:bg-red-500/20 transition'}">
+                Tolak
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        list.innerHTML = '<div class="text-center py-6 text-red-400"><p>Gagal memuat pendaftar. Pastikan server nyala dan Anda memiliki akses admin.</p></div>';
+      }
+    }
+
+    async function updateVolunteerStatus(volunteerId, status, eventId) {
+      if (!confirm(`Ubah status pendaftar menjadi ${status}?`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/volunteers/${volunteerId}/status`, {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify({ status: status })
+        });
+        
+        if (res.ok) {
+          showToast(`Status berhasil diubah menjadi ${status}`);
+          loadEventVolunteers(eventId); // Refresh modal list
+        } else {
+          const data = await res.json();
+          showToast(data.detail || 'Gagal mengubah status', 'error');
+        }
+      } catch (err) {
+        showToast('Gagal menghubungi server.', 'error');
+      }
+    }
+
+    // =============================================
+    // MY REGISTRATIONS
+    // =============================================
+    async function loadMyRegistrations() {
+      try {
+        const res  = await fetch(`${API_BASE}/volunteers/my`, { headers: authHeaders() });
+        const data = await res.json();
+
+        // Update stats
+        document.getElementById('stat-my').textContent = Array.isArray(data) ? data.length : '—';
+
+        const panel = document.getElementById('my-reg-panel');
+        const list  = document.getElementById('my-reg-list');
+
+        if (!panel.classList.contains('hidden')) {
+          // Update if visible
+          renderMyRegistrations(data, list);
+        }
+      } catch (err) {
+        document.getElementById('stat-my').textContent = '—';
+      }
+    }
+
+    function renderMyRegistrations(data, listEl) {
+      if (!Array.isArray(data) || data.length === 0) {
+        listEl.innerHTML = `
+          <div class="glass rounded-xl p-8 text-center text-slate-500">
+            <svg class="w-8 h-8 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <p class="text-sm">Belum ada pendaftaran.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const statusColor = {
+        'Pending':  'bg-yellow-500/15 text-yellow-300 border-yellow-500/20',
+        'Accepted': 'bg-green-500/15 text-green-300 border-green-500/20',
+        'Rejected': 'bg-red-500/15 text-red-300 border-red-500/20'
+      };
+
+      listEl.innerHTML = data.map(v => `
+        <div class="glass rounded-xl p-5 flex items-center justify-between gap-4 fade-in">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-medium text-slate-400">Event #${v.event_id}</span>
+              <span class="text-slate-600">·</span>
+              <span class="text-xs font-medium text-blue-300">${escapeHtml(v.division_choice)}</span>
+            </div>
+            <p class="text-xs text-slate-500 truncate">${v.motivation_letter ? escapeHtml(v.motivation_letter.substring(0, 80)) + '...' : 'Tidak ada surat motivasi.'}</p>
+          </div>
+          <div class="flex items-center gap-3 flex-shrink-0">
+            <span class="text-xs font-bold px-3 py-1 rounded-full border ${statusColor[v.status] || 'bg-slate-500/15 text-slate-300 border-slate-500/20'}">
+              ${v.status}
+            </span>
+            <button onclick="cancelRegistration(${v.id})"
+              class="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition text-xs flex items-center justify-center"
+              title="Batalkan">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function showMyRegistrationPanel() {
+      const panel = document.getElementById('my-reg-panel');
+      const list  = document.getElementById('my-reg-list');
+      panel.classList.remove('hidden');
+
+      list.innerHTML = '<p class="text-slate-500 text-sm text-center py-4">⏳ Memuat...</p>';
+
+      try {
+        const res  = await fetch(`${API_BASE}/volunteers/my`, { headers: authHeaders() });
+        const data = await res.json();
+        renderMyRegistrations(data, list);
+      } catch (err) {
+        list.innerHTML = '<p class="text-red-400 text-sm text-center py-4">Gagal memuat data.</p>';
+      }
+    }
+
+    function loadMyRegistrations() {
+      showMyRegistrationPanel();
+    }
+
+    function closeMyRegistrations() {
+      document.getElementById('my-reg-panel').classList.add('hidden');
+    }
+
+    async function cancelRegistration(volunteerId) {
+      if (!confirm('Batalkan pendaftaran ini?')) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/volunteers/${volunteerId}`, {
+          method: 'DELETE',
+          headers: authHeaders()
+        });
+
+        if (res.ok) {
+          showToast('Pendaftaran berhasil dibatalkan.');
+          loadMyRegistrations();
+        } else {
+          const data = await res.json();
+          showToast(data.detail || 'Gagal membatalkan.', 'error');
+        }
+      } catch (err) {
+        showToast('Gagal menghubungi server.', 'error');
+      }
+    }
+
+    // =============================================
+    // INIT
+    // =============================================
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
